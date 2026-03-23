@@ -1,0 +1,62 @@
+# Agent Chaos Runbook
+
+## Port-forward nhanh
+
+```bash
+# Local kubeconfig
+kubectl port-forward svc/my-grafana 3000:80 -n monitoring
+kubectl port-forward svc/chaos-dashboard 2333:2333 -n chaos-mesh
+
+# k3s server
+sudo k3s kubectl port-forward svc/chaos-dashboard 8080:2333 -n chaos-mesh --address 0.0.0.0
+sudo k3s kubectl port-forward svc/my-grafana 3000:80 -n monitoring --address 0.0.0.0
+```
+
+## Ke hoach chaos 24h
+
+- Runbook chi tiet: `LAB_CENTER/agent/chaos-mesh-24h-plan.md`
+- Huong dan chay: `LAB_CENTER/agent/HUONG_DAN_CHAOS_MESH_VA_PYTHON_METRICS.md`
+- Manifest: `LAB_CENTER/agent/chaos-mesh-manifests/`
+- Label terms: `LAB_CENTER/agent/chaos-labeling-terms.md`
+- Label rules YAML: `LAB_CENTER/agent/chaos-labeling-rules.yaml`
+
+Chay 24h schedule mode (khong chay chung voi immediate mode):
+
+```bash
+kctl(){ if command -v k3s >/dev/null 2>&1 && [[ -r /etc/rancher/k3s/k3s.yaml ]]; then sudo k3s kubectl "$@"; else kubectl "$@"; fi; }
+kctl apply -f LAB_CENTER/agent/chaos-mesh-manifests/00-common-labels.yaml
+kctl apply -f LAB_CENTER/agent/chaos-mesh-manifests/01-chaos-target-nginx.yaml
+kctl rollout status deploy/chaos-target-nginx -n backend --timeout=120s
+kctl apply -f LAB_CENTER/agent/chaos-mesh-manifests/30-schedules-24h.yaml
+```
+
+Luu y: IOChaos da duoc cau hinh inject tren `/mnt/chaos`, khong inject vao root filesystem `/`.
+Khong `kubectl apply -f` ca thu muc vi se tao ca immediate chaos (`10/11/20/21`) va schedule cung luc, de xay ra xung dot tc/ipset.
+
+Xem trang thai:
+
+```bash
+kctl get iochaos,networkchaos,dnschaos,stresschaos,schedules -n backend
+```
+
+Cleanup:
+
+```bash
+kctl delete -f LAB_CENTER/agent/chaos-mesh-manifests/30-schedules-24h.yaml --ignore-not-found
+kctl delete -f LAB_CENTER/agent/chaos-mesh-manifests/21-dns-chaos.yaml --ignore-not-found
+kctl delete -f LAB_CENTER/agent/chaos-mesh-manifests/20-network-chaos.yaml --ignore-not-found
+kctl delete -f LAB_CENTER/agent/chaos-mesh-manifests/11-disk-stress-and-fill.yaml --ignore-not-found
+kctl delete -f LAB_CENTER/agent/chaos-mesh-manifests/10-disk-iochaos.yaml --ignore-not-found
+```
+
+## Tao dataset metric + label (30s)
+
+```bash
+python LAB_CENTER/agent/main.py \
+	--prom-url http://localhost:9090 \
+	--start 2026-03-20T00:00:00 \
+	--end 2026-03-21T00:00:00 \
+	--step 30s \
+	--rules LAB_CENTER/agent/chaos-labeling-rules.yaml \
+	--output LAB_CENTER/agent/chaos_labeled_30s.csv
+```
