@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ./Backend
+    container_name: lab-backend
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./Frontend
+    container_name: lab-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
