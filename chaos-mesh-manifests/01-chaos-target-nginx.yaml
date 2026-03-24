@@ -23,7 +23,7 @@ spec:
           image: shieldxbot/mock-backend-metrics:latest
           env:
             - name: TARGETS
-              value: "http://chaos-target-nginx.frontend.svc.cluster.local:18081"
+              value: "http://chaos-target-nginx-frontend.frontend.svc.cluster.local:18081/metrics"
           ports:
             - containerPort: 18080
           resources:
