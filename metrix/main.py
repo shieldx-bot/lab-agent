@@ -114,22 +114,15 @@ def prometheus_query_all(
 	metrix_backend_network = requests.get("http://localhost:18080/metrics")
 	payload = metrix_backend_network.json()
 	print(payload)
-	targets_payload = payload.get("targets", {})
-	preferred_target = os.getenv("METRIX_TARGET_URL", "http://chaos-target-nginx.backend.svc.cluster.local:18080")
-	selected_target = preferred_target if preferred_target in targets_payload else next(iter(targets_payload), None)
-	if selected_target:
-		for i in targets_payload[selected_target]:
-			array[i] = targets_payload[selected_target][i]
-		array["selected_target"] = selected_target
-	else:
-		array["selected_target"] = ""
-	# print(array)
-	file_path = "data.csv"
-	df = pd.DataFrame([array])
-	if os.path.isfile(file_path):
-		df.to_csv(file_path, mode='a', header=False, index=False)
-	else:
-		df.to_csv(file_path, index=False)
+	# for i in payload["targets"]["http://chaos-target-nginx-frontend.frontend.svc.cluster.local:18081/metrics"]: 
+	# 	array[i] = payload["targets"]["http://chaos-target-nginx-frontend.frontend.svc.cluster.local:18081/metrics"][i]
+	# # print(array)
+	# file_path = "data.csv"
+	# df = pd.DataFrame([array])
+	# if os.path.isfile(file_path):
+	# 	df.to_csv(file_path, mode='a', header=False, index=False)
+	# else:
+	# 	df.to_csv(file_path, index=False)
 def main():
 	prom_url = "http://localhost:9090"
 	step = "30s"
@@ -144,3 +137,6 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
+
+	
