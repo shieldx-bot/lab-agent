@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaos-target-nginx-frontend-frontend
+  namespace: frontend
+  labels:
+    app: chaos-target-nginx-frontend
+    chaos-target: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chaos-target-nginx-frontend
+      chaos-target: "true"
+  template:
+    metadata:
+      labels:
+        app: chaos-target-nginx-frontend
+        chaos-target: "true"
+    spec:
+      containers:
+        - name: nginx
+          image: shieldxbot/mock-backend-metrics:latest
+          env:
+            - name: TARGETS
+              value: "http://chaos-target-nginx.backend.svc.cluster.local:18080"
+          ports:
+            - containerPort: 18080
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: chaos-data
+              mountPath: /mnt/chaos
+          
+      volumes:
+        - name: chaos-data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chaos-target-nginx-frontend
+  namespace: frontend
+  labels:
+    app: chaos-target-nginx-frontend
+    chaos-target: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: chaos-target-nginx-frontend
+    chaos-target: "true"
+  ports:
+    - name: http
+      port: 18080
+      targetPort: 18080
+      protocol: TCP
+
+ 
