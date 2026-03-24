@@ -618,7 +618,7 @@ def finalize_columns(labeled_df: pd.DataFrame) -> pd.DataFrame:
 		"instance",
 		"window_size",
 		"label_root_cause",
-		"label_severity",
+		"label_severity",rxz
 		"label_confidence",
 		"matched_rules",
 		"is_mixed",
