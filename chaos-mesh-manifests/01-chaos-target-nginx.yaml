@@ -20,9 +20,12 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.27
+          image: shieldxbot/mock-backend-metrics:latest
+          env:
+            - name: TARGETS
+              value: "http://chaos-target-nginx.frontend.svc.cluster.local:18081"
           ports:
-            - containerPort: 80
+            - containerPort: 18080
           resources:
             requests:
               cpu: 50m
@@ -33,6 +36,29 @@ spec:
           volumeMounts:
             - name: chaos-data
               mountPath: /mnt/chaos
+          
       volumes:
         - name: chaos-data
           emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chaos-target-nginx
+  namespace: backend
+  labels:
+    app: chaos-target-nginx
+    chaos-target: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: chaos-target-nginx
+    chaos-target: "true"
+  ports:
+    - name: http
+      port: 18080
+      targetPort: 18080
+      protocol: TCP
+
+ 
