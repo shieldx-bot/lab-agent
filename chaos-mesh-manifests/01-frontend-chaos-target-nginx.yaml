@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chaos-target-nginx-frontend-frontend
+  name: chaos-target-nginx-frontend
   namespace: frontend
   labels:
     app: chaos-target-nginx-frontend
@@ -20,12 +20,12 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: shieldxbot/mock-backend-metrics:latest
+          image: shieldxbot/mock-backend-metrics:v1.0.1
           env:
             - name: TARGETS
-              value: "http://chaos-target-nginx.backend.svc.cluster.local:18080"
+              value: "http://chaos-target-nginx.backend.svc.cluster.local:18080/metrics"
           ports:
-            - containerPort: 18080
+            - containerPort: 18081
           resources:
             requests:
               cpu: 50m
@@ -57,8 +57,8 @@ spec:
     chaos-target: "true"
   ports:
     - name: http
-      port: 18080
-      targetPort: 18080
+      port: 18081
+      targetPort: 18081
       protocol: TCP
 
  
