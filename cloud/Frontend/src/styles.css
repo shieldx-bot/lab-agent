@@ -1,0 +1,43 @@
+:root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+  background: #eef2ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  margin: 0;
+}
+
+.status {
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #dbeafe;
+}
+
+.error {
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
